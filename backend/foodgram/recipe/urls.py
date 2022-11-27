@@ -1,7 +1,15 @@
-from django.urls import path
+from django.urls import include, path
+from rest_framework.routers import DefaultRouter
 
-from . import views
+from .views import IngredientsViewSet, TagsViewSet, RecipeViewSet
+
+app_name = 'api'
+
+router = DefaultRouter()
+router.register('tags', TagsViewSet)
+router.register('ingredients', IngredientsViewSet)
+router.register('recipe', RecipeViewSet)
 
 urlpatterns = [
-    #path('', views.index),
+    path('', include(router.urls)),
 ]
