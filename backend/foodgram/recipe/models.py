@@ -12,7 +12,7 @@ class Ingredient(models.Model):
         max_length=200,
         verbose_name='Название ингредиента'
     )
-    unit = models.CharField(
+    measurement_unit = models.CharField(
         max_length=200,
         verbose_name='Единица измерения'
     )
@@ -26,20 +26,24 @@ class IngredientWithAmount(models.Model):
     """Модель ингредиента для указания количества в рецепте"""
 
     ingredient = models.ForeignKey(
-        Ingredient,
+        'Ingredient',
         on_delete=models.CASCADE,
-        verbose_name='Ingredient'
+        verbose_name='Ингредиент'
+                     ''
     )
 
-    amount = models.PositiveSmallIntegerField
+    amount = models.PositiveSmallIntegerField(
+        verbose_name='Количество'
+    )
 
     class Meta:
         verbose_name = 'Количество ингредиента'
+        verbose_name_plural = 'Количество ингредиентов'
+        default_related_name = 'recipe_ingredients'
         ordering = ['-id']
 
     def __str__(self):
-        return (f'{self.ingredient.name} : {self.amount}'
-                f'{self.ingredient.unit}')
+        return self.ingredient.name
 
 
 class Tag(models.Model):
@@ -47,7 +51,7 @@ class Tag(models.Model):
 
     name = models.CharField(
         max_length=200,
-        verbose_name='Название рецепта',
+        verbose_name='Название тэга',
         unique=True,
     )
     color = models.CharField(
