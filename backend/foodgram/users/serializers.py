@@ -5,7 +5,6 @@ from rest_framework.validators import UniqueValidator
 
 from .models import Follow
 
-
 User = get_user_model()
 
 
