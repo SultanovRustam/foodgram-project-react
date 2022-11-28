@@ -21,29 +21,8 @@ class Ingredient(models.Model):
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
 
-
-class IngredientWithAmount(models.Model):
-    """Модель ингредиента для указания количества в рецепте"""
-
-    ingredient = models.ForeignKey(
-        'Ingredient',
-        on_delete=models.CASCADE,
-        verbose_name='Ингредиент'
-                     ''
-    )
-
-    amount = models.PositiveSmallIntegerField(
-        verbose_name='Количество'
-    )
-
-    class Meta:
-        verbose_name = 'Количество ингредиента'
-        verbose_name_plural = 'Количество ингредиентов'
-        default_related_name = 'recipe_ingredients'
-        ordering = ['-id']
-
     def __str__(self):
-        return self.ingredient.name
+        return self.name
 
 
 class Tag(models.Model):
@@ -78,10 +57,9 @@ class Recipe(models.Model):
 
     author = models.ForeignKey(
         User,
-        on_delete=models.SET_NULL,
-        related_name='recipes',
-        verbose_name='Автор',
-        null=True,
+        on_delete=models.CASCADE,
+        related_name='recipe',
+        verbose_name='Автор'
     )
     name = models.CharField(
         max_length=200,
@@ -89,30 +67,70 @@ class Recipe(models.Model):
     )
 
     image = models.ImageField(
-        upload_to='recipe/images',
+        upload_to='static/recipe',
         verbose_name='Картинка',
         help_text='Добавьте изображение'
     )
     text = models.TextField(
-        verbose_name='Текстовое описание',
+        verbose_name='Текстовое описание рецепта',
     )
     ingredients = models.ManyToManyField(
-        IngredientWithAmount,
-        related_name='recipes',
+        Ingredient,
+        through='IngredientWithAmount',
         verbose_name='Используемые ингредиенты',
     )
     tags = models.ManyToManyField(
-        Tag
+        Tag,
+        verbose_name='Тэги',
+        related_name='recipes'
     )
     cooking_time = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(1440)],
         verbose_name='Время приготовления'
     )
+    pub_date = models.DateTimeField(
+        'Дата публикации',
+        auto_now_add=True)
 
     class Meta:
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
-        ordering = ['-id']
+        ordering = ['-pub_date']
 
     def __str__(self):
         return self.name
+
+
+class IngredientWithAmount(models.Model):
+    """Модель ингредиента для указания количества в рецепте"""
+
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='recipe'
+    )
+
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+        verbose_name='Ингредиент',
+        related_name='ingredient'
+    )
+
+    amount = models.PositiveSmallIntegerField(
+        default=1,
+        validators=[MinValueValidator(1)],
+        verbose_name='Количество'
+    )
+
+    class Meta:
+        verbose_name = 'Количество ингредиента'
+        verbose_name_plural = 'Количество ингредиентов'
+        ordering = ['-id']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'ingredient'],
+                name='unique ingredient')]
+
+    def __str__(self):
+        return self.ingredient.name
