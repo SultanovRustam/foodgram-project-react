@@ -134,3 +134,56 @@ class IngredientWithAmount(models.Model):
 
     def __str__(self):
         return self.ingredient.name
+
+
+class FavoriteRecipe(models.Model):
+    """Модель избранного рецепта"""
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        related_name='favorite_recipe',
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        verbose_name = 'Избранный рецепт'
+        verbose_name_plural = 'Избранные рецепты'
+        default_related_name = 'favorites'
+        constraints = (
+            models.UniqueConstraint(
+                fields=('user', 'recipe'),
+                name='uniq_favorites',
+            ),
+        )
+        ordering = ('user',)
+
+
+class ShoppingCart(models.Model):
+    """Модель корзины"""
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='shopping_cart',
+        null=True,
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='shopping_cart',
+        verbose_name='Покупка'
+    )
+
+    class Meta:
+        verbose_name = 'Покупка'
+        verbose_name_plural = 'Покупки'
+        constraints = (
+            models.UniqueConstraint(
+                fields=('user', 'recipe'),
+                name='unique_cart',
+            ),
+        )
