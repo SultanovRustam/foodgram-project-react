@@ -136,6 +136,18 @@ class IngredientWithAmount(models.Model):
         return self.ingredient.name
 
 
+class RecipeTag(models.Model):
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Тэги рецепта'
+        verbose_name_plural = 'Тэги рецепта'
+
+    def __str__(self):
+        return f'{self.tag} {self.recipe}'
+
+
 class FavoriteRecipe(models.Model):
     """Модель избранного рецепта"""
 

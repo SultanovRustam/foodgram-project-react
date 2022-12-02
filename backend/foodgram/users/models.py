@@ -6,6 +6,7 @@ User = get_user_model()
 
 class Follow(models.Model):
     """Модель подписки пользователя на автора рецепта"""
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -29,3 +30,6 @@ class Follow(models.Model):
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
         ordering = ['-id']
+
+    def __str__(self):
+        return f'{self.user}{self.author}'
