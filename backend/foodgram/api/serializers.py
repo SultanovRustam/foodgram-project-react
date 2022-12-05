@@ -9,13 +9,13 @@ from users.models import Follow, User
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = 'name', 'measurement_unit'
+        fields = 'name', 'color', 'slug'
         model = Tag
 
 
 class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = 'name', 'color', 'slug'
+        fields = 'name', 'measurement_unit'
         model = Ingredient
 
 
