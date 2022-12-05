@@ -33,7 +33,7 @@ class CustomUserSerializer(UserSerializer):
             'is_subscribed'
         )
 
-    def check_subscribe(self, obj):
+    def get_is_subscribed(self, obj):
         user = self.context['request'].user
         if user.is_anonymous:
             return False
