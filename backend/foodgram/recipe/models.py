@@ -57,8 +57,10 @@ class Recipe(models.Model):
 
     author = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
-        related_name='recipe',
+        on_delete=models.SET_DEFAULT,
+        null=True,
+        default='Неизвестный автор',
+        related_name='recipes',
         verbose_name='Автор'
     )
     name = models.CharField(
@@ -154,11 +156,12 @@ class FavoriteRecipe(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
+        related_name='author_of_favoritting'
     )
     recipe = models.ForeignKey(
         Recipe,
         related_name='favorite_recipe',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
 
     class Meta:
@@ -180,7 +183,7 @@ class ShoppingCart(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='shopping_cart',
+        related_name='author_of_shopping_cart',
         null=True,
     )
     recipe = models.ForeignKey(

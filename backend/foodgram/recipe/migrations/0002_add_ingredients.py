@@ -5,7 +5,10 @@ from django.db import migrations
 from foodgram.settings import BASE_DIR
 
 json_name = 'ingredients.json'
-location_json = os.path.abspath(os.path.join(BASE_DIR, os.path.pardir, os.path.pardir, 'data', json_name))
+location_json = os.path.abspath(os.path.join(BASE_DIR,
+                                             os.path.pardir,
+                                             os.path.pardir,
+                                             'data', json_name))
 
 with open(location_json, encoding='utf-8') as json_file:
     json_data = json.load(json_file)

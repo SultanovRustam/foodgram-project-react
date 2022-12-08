@@ -91,6 +91,46 @@ class RecipeSerializer(serializers.ModelSerializer):
                 )
         return recipe
 
+    def validate_ingredients(self, ingredients):
+        if ingredients == []:
+            raise serializers.ValidationError(
+                'Поле ingredients не может быть пустым'
+            )
+        try:
+            for ingredient in ingredients:
+                id = ingredient.get('id')
+                amount = ingredient.get('amount')
+                if int(amount) < 1:
+                    raise serializers.ValidationError(
+                        'Минимальное количество ингредиентов 1'
+                    )
+                if not Ingredient.objects.filter(id=id).exists():
+                    raise serializers.ValidationError(
+                        f'Ингредиента c id {id} не существует'
+                    )
+        except TypeError:
+            raise serializers.ValidationError(
+                'Поле tags обязательно для заполнения'
+            )
+        return ingredients
+
+    def validate_tags(self, tags):
+        if tags == []:
+            raise serializers.ValidationError(
+                'Поле tags не может быть пустым'
+            )
+        try:
+            for tag in tags:
+                if not Tag.objects.filter(id=tag).exists():
+                    raise serializers.ValidationError(
+                        f'Тега c id {tag} не существует'
+                    )
+        except TypeError:
+            raise serializers.ValidationError(
+                'Поле tags обязательно для заполнения'
+            )
+        return tags
+
     def create(self, validated_data):
         ingredients = self.initial_data.get('ingredients')
         tags = self.initial_data.get('tags')
@@ -108,6 +148,14 @@ class RecipeSerializer(serializers.ModelSerializer):
         self.validate_tags(tags)
         instance = self.write_ingredients_tags(instance, ingredients, tags)
         return super().update(instance, validated_data)
+
+
+class RecipeShortSerializer(serializers.ModelSerializer):
+    image = Base64ImageField()
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'cooking_time', 'image')
 
 
 class RecipeShortSerializer(serializers.ModelSerializer):

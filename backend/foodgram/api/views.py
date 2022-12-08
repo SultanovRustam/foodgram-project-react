@@ -1,19 +1,19 @@
-from django.db.models import F, OuterRef, Exists, Value, BooleanField
+from django.db.models import BooleanField, Exists, F, OuterRef, Value
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from rest_framework import viewsets, permissions, status
+from recipe.models import FavoriteRecipe, Ingredient, Recipe, ShoppingCart, Tag
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-
-from recipe.models import (FavoriteRecipe, Ingredient, Recipe,
-                           ShoppingCart, Tag)
 from users.models import Follow, User
+
 from .filters import CustomFilter
 from .pagination import CustomPageNumberPagination
-from .serializers import (FollowSerializer, IngredientSerializer, TagSerializer,
-                          RecipeSerializer, RecipeShortSerializer)
+from .serializers import (FollowSerializer, IngredientSerializer,
+                          RecipeSerializer, RecipeShortSerializer,
+                          TagSerializer)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -51,11 +51,10 @@ class CustomUserViewSet(UserViewSet):
         serializer = FollowSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    action(
+    @action(
         methods=['post', 'delete'], detail=True,
         permission_classes=(permissions.IsAuthenticated,)
     )
-
     def subscribe(self, request, id):
         user = self.request.user
         author = get_object_or_404(User, id=id)
