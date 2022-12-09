@@ -46,7 +46,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'foodgram_workflow.yaml.urls'
+ROOT_URLCONF = 'foodgram.urls'
 
 TEMPLATES = [
     {
