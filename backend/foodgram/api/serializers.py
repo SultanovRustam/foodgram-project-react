@@ -1,8 +1,11 @@
 from django.db.models import F
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import (Ingredient, IngredientWithAmount, Recipe, RecipeTag,
-                           Tag)
+from recipes.models import (Ingredient,
+                            IngredientWithAmount,
+                            Recipe,
+                            RecipeTag,
+                            Tag)
 from rest_framework import serializers
 from users.models import Follow, User
 
