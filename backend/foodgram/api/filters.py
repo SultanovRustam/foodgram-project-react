@@ -1,6 +1,6 @@
 import django_filters
 from django_filters.widgets import BooleanWidget
-from recipe.models import Recipe
+from recipes.models import Recipe
 from rest_framework.filters import SearchFilter
 
 
