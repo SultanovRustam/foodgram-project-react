@@ -73,20 +73,18 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def write_ingredients_tags(self, recipe, ingredients, tags):
         for ingredient in ingredients:
-            current_ingredient = Ingredient.objects.get_object_or_404(
-                id=ingredient.get('id')
-            )
+            current_ingredient = get_object_or_404(Ingredient, id='id')
             IngredientWithAmount.objects.update_or_create(
                 ingredient=current_ingredient,
                 amount=ingredient.get('amount'),
                 recipe=recipe
             )
         if isinstance(tags, int):
-            current_tag = Tag.objects.get_object_or_404(id=tags)
+            current_tag = get_object_or_404(Tag, id=tags)
             RecipeTag.objects.update_or_create(tag=current_tag, recipe=recipe)
         else:
             for tag in tags:
-                current_tag = Tag.objects.get_object_or_404(id=tag)
+                current_tag = get_object_or_404(Tag, id=tag)
                 RecipeTag.objects.update_or_create(
                     tag=current_tag,
                     recipe=recipe
