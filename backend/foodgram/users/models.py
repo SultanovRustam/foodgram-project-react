@@ -5,7 +5,6 @@ User = get_user_model()
 
 
 class Follow(models.Model):
-    """Модель подписки пользователя на автора рецепта"""
 
     user = models.ForeignKey(
         User,
