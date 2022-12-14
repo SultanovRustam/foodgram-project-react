@@ -6,7 +6,6 @@ User = get_user_model()
 
 
 class Ingredient(models.Model):
-    """Модель ингредиента для первичного заполнения"""
 
     name = models.CharField(
         max_length=200,
@@ -26,7 +25,6 @@ class Ingredient(models.Model):
 
 
 class Tag(models.Model):
-    """Модель тэга"""
 
     name = models.CharField(
         max_length=200,
@@ -53,13 +51,10 @@ class Tag(models.Model):
 
 
 class Recipe(models.Model):
-    """Модель рецепта"""
 
     author = models.ForeignKey(
         User,
-        on_delete=models.SET_DEFAULT,
-        null=True,
-        default='Неизвестный автор',
+        on_delete=models.CASCADE,
         related_name='recipes',
         verbose_name='Автор'
     )
@@ -104,7 +99,6 @@ class Recipe(models.Model):
 
 
 class IngredientWithAmount(models.Model):
-    """Модель ингредиента для указания количества в рецепте"""
 
     recipe = models.ForeignKey(
         Recipe,
@@ -145,13 +139,18 @@ class RecipeTag(models.Model):
     class Meta:
         verbose_name = 'Тэги рецепта'
         verbose_name_plural = 'Тэги рецепта'
+        constraints =[
+            models.UniqueConstraint(
+                fields=['tag', 'recipe'],
+                name='unique tag'
+            )
+        ]
 
     def __str__(self):
         return f'{self.tag} {self.recipe}'
 
 
 class FavoriteRecipe(models.Model):
-    """Модель избранного рецепта"""
 
     user = models.ForeignKey(
         User,
@@ -178,7 +177,6 @@ class FavoriteRecipe(models.Model):
 
 
 class ShoppingCart(models.Model):
-    """Модель корзины"""
 
     user = models.ForeignKey(
         User,
@@ -189,7 +187,7 @@ class ShoppingCart(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='shopping_cart',
+        related_name='shopping_cart_recipes',
         verbose_name='Покупка'
     )
 

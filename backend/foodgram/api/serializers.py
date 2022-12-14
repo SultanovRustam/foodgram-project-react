@@ -1,12 +1,11 @@
 from django.db.models import F
+from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import (Ingredient,
-                            IngredientWithAmount,
-                            Recipe,
-                            RecipeTag,
-                            Tag)
+from recipes.models import (Ingredient, IngredientWithAmount, Recipe,
+                            RecipeTag, Tag)
 from rest_framework import serializers
+
 from users.models import Follow, User
 
 
@@ -74,7 +73,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def write_ingredients_tags(self, recipe, ingredients, tags):
         for ingredient in ingredients:
-            current_ingredient = Ingredient.objects.get(
+            current_ingredient = Ingredient.objects.get_object_or_404(
                 id=ingredient.get('id')
             )
             IngredientWithAmount.objects.update_or_create(
@@ -83,11 +82,11 @@ class RecipeSerializer(serializers.ModelSerializer):
                 recipe=recipe
             )
         if isinstance(tags, int):
-            current_tag = Tag.objects.get(id=tags)
+            current_tag = Tag.objects.get_object_or_404(id=tags)
             RecipeTag.objects.update_or_create(tag=current_tag, recipe=recipe)
         else:
             for tag in tags:
-                current_tag = Tag.objects.get(id=tag)
+                current_tag = Tag.objects.get_object_or_404(id=tag)
                 RecipeTag.objects.update_or_create(
                     tag=current_tag,
                     recipe=recipe
@@ -95,21 +94,21 @@ class RecipeSerializer(serializers.ModelSerializer):
         return recipe
 
     def validate_ingredients(self, ingredients):
-        if ingredients == []:
+        if not ingredients:
             raise serializers.ValidationError(
                 'Поле ingredients не может быть пустым'
             )
         try:
             for ingredient in ingredients:
-                id = ingredient.get('id')
+                ingredient_id = ingredient.get('id')
                 amount = ingredient.get('amount')
                 if int(amount) < 1:
                     raise serializers.ValidationError(
                         'Минимальное количество ингредиентов 1'
                     )
-                if not Ingredient.objects.filter(id=id).exists():
+                if not Ingredient.objects.filter(id=ingredient_id).exists():
                     raise serializers.ValidationError(
-                        f'Ингредиента c id {id} не существует'
+                        f'Ингредиента c id {ingredient_id} не существует'
                     )
         except TypeError:
             raise serializers.ValidationError(
@@ -118,7 +117,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         return ingredients
 
     def validate_tags(self, tags):
-        if tags == []:
+        if not tags:
             raise serializers.ValidationError(
                 'Поле tags не может быть пустым'
             )
@@ -138,7 +137,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         ingredients = self.initial_data.get('ingredients')
         tags = self.initial_data.get('tags')
         self.validate_ingredients(ingredients)
-        self.validate_tags(tags)
         recipe = Recipe.objects.create(**validated_data)
         return self.write_ingredients_tags(recipe, ingredients, tags)
 
@@ -147,8 +145,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         instance.tags.clear()
         ingredients = self.initial_data.get('ingredients')
         tags = self.initial_data.get('tags')
-        self.validate_ingredients(ingredients)
-        self.validate_tags(tags)
         instance = self.write_ingredients_tags(instance, ingredients, tags)
         return super().update(instance, validated_data)
 

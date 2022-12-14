@@ -1,18 +1,15 @@
-from django.db.models import BooleanField, Exists, F, OuterRef, Value
+from django.db.models import BooleanField, Exists, OuterRef, Sum, Value
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from recipes.models import (FavoriteRecipe,
-                            Ingredient,
-                            Recipe,
-                            ShoppingCart,
-                            Tag)
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from users.models import Follow, User
 
+from recipes.models import (FavoriteRecipe, Ingredient, IngredientWithAmount,
+                            Recipe, ShoppingCart, Tag)
+from users.models import Follow, User
 from .filters import CustomFilter
 from .pagination import CustomPageNumberPagination
 from .serializers import (FollowSerializer, IngredientSerializer,
@@ -169,33 +166,25 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
 
     @action(permission_classes=(permissions.IsAuthenticated,), detail=False)
-    def download_shopping_cart(self, request, pk=None):
+    def download_shopping_cart(self, request):
         user = self.request.user
-        shopping_cart = user.author_of_shopping_cart.all()
-        shopping_cart_dict = {}
-        for recipe in shopping_cart:
-            values_list = recipe.recipe.ingredients.values(
-                'name', 'measurement_unit', amount=F('ingredient__amount')
+        ingredients = 'Cписок покупок:'
+        shopping_cart = IngredientWithAmount.objects.filter(
+            recipe__in=Recipe.objects.filter(shopping_cart_recipes__user=user))
+        shopping_cart = shopping_cart.values(
+            'ingredient__name', 'ingredient__measurement_unit'
+        ).order_by('ingredient__name').annotate(
+            amount_sum=Sum('amount'))
+        for num, i in enumerate(shopping_cart):
+            ingredients += (
+                f"\n{i['ingredient__name']} - "
+                f"{i['amount_sum']} {i['ingredient__measurement_unit']}"
             )
-            for values in values_list:
-                name = values['name']
-                measurement_unit = values['measurement_unit']
-                amount = values['amount']
-                if name not in shopping_cart_dict:
-                    shopping_cart_dict[name] = {
-                        'measurement_unit': measurement_unit,
-                        'amount': amount,
-                    }
-                else:
-                    shopping_cart_dict[name]['amount'] = (
-                        shopping_cart_dict[name]['amount'] + amount
-                    )
-        shopping_list = []
-        for key, values in shopping_cart_dict.items():
-            shopping_list.append(
-                f'{key} ({values["measurement_unit"]}) - {values["amount"]}\n'
-            )
-        filename = 'shopping-list.txt'
-        response = HttpResponse(shopping_list, content_type='text/plain')
-        response['Content-Disposition'] = f'attachment; filename={filename}'
+            if num < shopping_cart.count() - 1:
+                ingredients += ', '
+        file = 'shopping_list'
+        response = HttpResponse(
+            ingredients, 'Content-Type: application/pdf'
+        )
+        response['Content-Disposition'] = f'attachment; filename="{file}.pdf"'
         return response
