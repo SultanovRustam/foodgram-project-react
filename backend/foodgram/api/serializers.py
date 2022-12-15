@@ -1,11 +1,10 @@
 from django.db.models import F
-from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
 from recipes.models import (Ingredient, IngredientWithAmount, Recipe,
-                            RecipeTag, Tag)
+                            Tag)
 from users.models import Follow, User
 
 
@@ -74,26 +73,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         return obj.ingredients.values(
             'id', 'name', 'measurement_unit', amount=F('ingredient__amount')
         )
-
-    def write_ingredients_tags(self, recipe, ingredients, tags):
-        for ingredient in ingredients:
-            current_ingredient = get_object_or_404(Ingredient, id='id')
-            IngredientWithAmount.objects.update_or_create(
-                ingredient=current_ingredient,
-                amount=ingredient.get('amount'),
-                recipe=recipe
-            )
-        if isinstance(tags, int):
-            current_tag = get_object_or_404(Tag, id=tags)
-            RecipeTag.objects.update_or_create(tag=current_tag, recipe=recipe)
-        else:
-            for tag in tags:
-                current_tag = get_object_or_404(Tag, id=tag)
-                RecipeTag.objects.update_or_create(
-                    tag=current_tag,
-                    recipe=recipe
-                )
-        return recipe
 
     def validate_ingredients(self, ingredients):
         if not ingredients:
