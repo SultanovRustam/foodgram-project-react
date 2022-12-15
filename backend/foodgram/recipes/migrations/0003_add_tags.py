@@ -8,7 +8,7 @@ INITIAL_TAGS = [
 
 
 def add_tags(apps, schema_editor):
-    Tag = apps.get_model('recipe', 'Tag')
+    Tag = apps.get_model('recipes', 'Tag')
     for tag in INITIAL_TAGS:
         new_tag = Tag(**tag)
         new_tag.save()
