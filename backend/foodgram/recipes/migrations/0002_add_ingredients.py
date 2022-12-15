@@ -16,7 +16,7 @@ with open(location_json, encoding='utf-8') as json_file:
 
 
 def add_ingredients(apps, schema_editor):
-    Ingredient = apps.get_model('recipe', 'Ingredient')
+    Ingredient = apps.get_model('recipes', 'Ingredient')
     for ingredient in json_data:
         new_ingredient = Ingredient(**ingredient)
         new_ingredient.save()
