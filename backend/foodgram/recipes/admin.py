@@ -4,6 +4,11 @@ from .models import (FavoriteRecipe, Ingredient, IngredientWithAmount, Recipe,
                      ShoppingCart, Tag)
 
 
+class IngredientsInRecipeInline(admin.TabularInline):
+    model = Recipe.ingredients.through
+    min_num = 1
+
+
 class IngredientAdmin(admin.ModelAdmin):
     list_display = ('name', 'measurement_unit')
     list_filter = ('name', 'measurement_unit')
@@ -17,9 +22,23 @@ class TagAdmin(admin.ModelAdmin):
 
 
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('author', 'name')
-    list_filter = ('author', 'name')
-    search_fields = ('author', 'name')
+    inlines = (IngredientsInRecipeInline,)
+    list_display = (
+        'id',
+        'author',
+        'name',
+        'image',
+        'text',
+    )
+    search_fields = (
+        'name',
+        'author__username',
+        'author__email'
+    )
+    list_filter = ('name', 'author', 'tags')
+
+    def is_favorited(self, instance):
+        return instance.favorite_recipes.count()
 
 
 class IngredientWithAmountAdmin(admin.ModelAdmin):

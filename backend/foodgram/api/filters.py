@@ -1,26 +1,39 @@
-import django_filters
-from django_filters.widgets import BooleanWidget
-from rest_framework.filters import SearchFilter
+from django_filters.rest_framework import FilterSet, filters
 
-from recipes.models import Recipe
+from recipes.models import Ingredient, Recipe, Tag
+from users.models import User
 
 
-class CustomFilter(django_filters.FilterSet):
-    author = django_filters.AllValuesMultipleFilter(field_name='author__id')
-    tags = django_filters.AllValuesMultipleFilter(field_name='tags__slug')
-    is_favorited = django_filters.BooleanFilter(
-        field_name='is_favorited',
-        widget=BooleanWidget()
+class IngredientFilter(FilterSet):
+    name = filters.CharFilter(field_name='name', lookup_expr='icontains')
+
+    class Meta:
+        model = Ingredient
+        fields = ('name',)
+
+
+class TagFilter(FilterSet):
+    author = filters.ModelChoiceFilter(queryset=User.objects.all())
+    tags = filters.ModelMultipleChoiceFilter(
+        field_name='tags__slug',
+        queryset=Tag.objects.all(),
+        to_field_name='slug',
     )
-    in_shopping_cart = django_filters.BooleanFilter(
-        field_name='in_shopping_cart',
-        widget=BooleanWidget()
+    is_favorited = filters.BooleanFilter(method='get_is_favorited')
+    is_in_shopping_cart = filters.BooleanFilter(
+        method='get_is_in_shopping_cart'
     )
 
     class Meta:
         model = Recipe
-        fields = ['author', 'tags', 'is_favorited', 'in_shopping_cart']
+        fields = ('tags', 'author', 'is_favorited', 'is_in_shopping_cart')
 
+    def get_is_favorited(self, queryset, name, value):
+        if self.request.user.is_authenticated and value is True:
+            return queryset.filter(users_favorites__user=self.request.user)
+        return queryset
 
-class CustomSearchFilter(SearchFilter):
-    search_param = 'name'
+    def get_is_in_shopping_cart(self, queryset, name, value):
+        if self.request.user.is_authenticated and value is True:
+            return queryset.filter(shopping_cart__user=self.request.user)
+        return

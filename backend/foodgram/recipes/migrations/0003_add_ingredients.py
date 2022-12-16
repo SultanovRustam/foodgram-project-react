@@ -22,7 +22,7 @@ def add_ingredients(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('recipes', '0001_initial'),
+        ('recipes', '0002_create_model'),
     ]
 
     operations = [
