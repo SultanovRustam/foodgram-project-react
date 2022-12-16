@@ -56,10 +56,6 @@ https://www.docker.com/products/docker-desktop/
         ```
         docker-compose exec web python manage.py collectstatic --no-input
         ```
-    - Загрузить данные в БД:
-        ```
-        docker-compose exec backend python manage.py datatodb
-        ```
     - Остановить контейнеры:
         ```
         docker-compose down -v 
