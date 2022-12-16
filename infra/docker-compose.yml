@@ -9,7 +9,7 @@ services:
       - ./.env
 
   backend:
-    image: partizanishe/foodgram_backend:latest
+    build: ../backend/foodgram/
     restart: always
     volumes:
       - static_backend_value:/app/static_backend/
@@ -21,7 +21,7 @@ services:
       - ./.env
 
   frontend:
-    image: partizanishe/foodgram_frontend:latest
+    build: ../frontend/
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:

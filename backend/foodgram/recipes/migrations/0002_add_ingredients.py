@@ -6,8 +6,6 @@ from foodgram.settings import BASE_DIR
 
 json_name = 'ingredients.json'
 location_json = os.path.join(
-            BASE_DIR,
-            'data/',
             json_name
         )
 
@@ -24,7 +22,7 @@ def add_ingredients(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('recipe', '0001_initial'),
+        ('recipes', '0001_initial'),
     ]
 
     operations = [
