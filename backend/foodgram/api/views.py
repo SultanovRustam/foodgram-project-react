@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from recipes.models import (FavoriteRecipe, Ingredient, IngredientWithAmount,
                             Recipe, ShoppingCart, Tag)
 from users.models import Follow, User
-from .filters import CustomFilter
+from .filters import CustomFilter, CustomSearchFilter
 from .pagination import CustomPageNumberPagination
 from .serializers import (FollowSerializer, IngredientSerializer,
                           RecipeSerializer, RecipeShortSerializer,
@@ -27,6 +27,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     search_fields = ('^name',)
+    filter_backends = (CustomSearchFilter,)
 
 
 class CustomUserViewSet(UserViewSet):
