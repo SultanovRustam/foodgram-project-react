@@ -1,7 +1,7 @@
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import permissions, status, viewsets, generics, views
+from rest_framework import generics, permissions, status, views, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -9,13 +9,13 @@ from rest_framework.validators import ValidationError
 
 from recipes.models import (FavoriteRecipe, Ingredient, IngredientWithAmount,
                             Recipe, ShoppingCart, Tag)
-from users.models import Follow, CustomUser
+from users.models import CustomUser, Follow
 from .filters import IngredientFilter, TagFilter
 from .pagination import CustomPageNumberPagination
 from .serializers import (AddRecipeSerializer, FavoriteSerializer,
                           FollowSerializer, IngredientSerializer,
                           RecipeSerializer, RecipeShortSerializer,
-                          TagSerializer, SubscribeSerializer)
+                          SubscribeSerializer, TagSerializer)
 from .utils import convert_txt
 
 
@@ -30,6 +30,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     search_fields = ('^name',)
+    permission_classes = (AllowAny,)
     filter_backends = (DjangoFilterBackend,)
     filter_class = IngredientFilter
 
