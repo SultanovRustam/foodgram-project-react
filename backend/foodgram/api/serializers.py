@@ -281,10 +281,7 @@ class FollowSerializer(serializers.ModelSerializer):
     last_name = serializers.ReadOnlyField(source='author.last_name')
     is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
-    recipes_count = serializers.IntegerField(
-        source='recipes.count',
-        read_only=True
-    )
+    recipes_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Follow
@@ -312,3 +309,6 @@ class FollowSerializer(serializers.ModelSerializer):
             queryset, read_only=True, many=True
         )
         return serializer.data
+
+    def get_recipes_count(self, obj):
+        return obj.author.recipes.all().count()
